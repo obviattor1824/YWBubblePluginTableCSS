@@ -25,10 +25,10 @@
   position: relative;
   box-sizing: border-box;
   width: 100%;
-  border-bottom: 1px solid #0b4add;
+  border-bottom: 1px solid #ff00ff;
   margin-bottom: 4px;
   background-color: #fff;
-  color: #0b4add;
+  color: #ff00ff;
   font-weight: bold;
   white-space: nowrap;
   overflow: hidden;
