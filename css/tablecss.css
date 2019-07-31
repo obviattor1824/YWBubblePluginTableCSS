@@ -80,11 +80,11 @@
 .tabulator .tabulator-header .tabulator-col .tabulator-col-content .tabulator-col-title .tabulator-title-editor {
   box-sizing: border-box;
   width: 100%;
-  border: 1px solid #3759D7;
+  border: 1px solid #ff00ff;
   padding: 1px;
   background: #fff;
   font-size: 1em;
-  color: #3759D7;
+  color: #ff00ff;
 }
 
 .tabulator .tabulator-header .tabulator-col .tabulator-col-content .tabulator-arrow {
