@@ -4,4 +4,4 @@ serving our own css to the bubble table plugin
 2. minify via this url: https://www.minifier.org/
 3. paste minified into .min.css file
 
-NB. CDN via this link
+NB. CDN via this link https://staticaly.com/
