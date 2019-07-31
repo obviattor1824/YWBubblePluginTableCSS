@@ -1,0 +1,128 @@
+function(instance, properties, context) {
+
+  try {
+    // Load all data and properties first
+    var tt_data_source = properties.tt_data_source;
+    var tt_data_source_length = properties.tt_data_source.length();
+    var tt_data_source_listProperties = properties.tt_data_source.get(0, tt_data_source_length)[0].listProperties();
+    var user_details_listProperties = properties.user_details.get(0, properties.user_details.length())[0].listProperties();
+    var user_details = properties.user_details;
+    var rep_cats = properties.rep_cats;
+    var rep_cats_listProperties = properties.rep_cats.get(0, properties.rep_cats.length())[0].listProperties();
+
+    // Now create the array of data and assign to a variable
+    var tableData = tableArray(tt_data_source, tt_data_source_length, tt_data_source_listProperties,
+      user_details_listProperties, user_details, rep_cats, rep_cats_listProperties);
+
+    console.log(tableData);
+    // Now show the table passing it the data array
+    showTable(tableData);
+
+    } catch (err) {
+    if (err.message === 'not ready') {
+      console.log("not ready dude")
+      throw err;
+    }
+    else {
+      console.log(err);
+    }
+  }
+
+  function tableArray(tt_data_source, tt_data_source_length, tt_data_source_listProperties,
+    user_details_listProperties, user_details, rep_cats, rep_cats_listProperties) {
+    var table_data = [];
+    for (var i = 0; i < tt_data_source_length; i++){
+      var table_entry = {}
+      for (var j = 0; j < tt_data_source_listProperties.length; j++){
+        var tableKey = tt_data_source_listProperties[j]
+        var tableValue
+        
+        // dig into user details to retrieve field - email
+        if (tableKey == "Created By"){
+          tableValue = user_details.get(0, user_details.length())[0].get("email")
+        }
+        // dig into reporting cat's to retrieve field - name in this case
+        else if(tableKey == "reporting_category_custom_reporting_category") {
+          tableValue = rep_cats.get(0, rep_cats.length())[0].get("name_text")
+        }
+        // ignore Changelog
+        else if(tableKey == "changelog_list_custom_changelog") {
+          tableValue = "!"
+        }
+        // ignore Yacht
+        else if(tableKey == "yacht_custom_yacht") {
+          tableValue = "!"
+        }
+        // change the date format
+        else if(tableKey == "Created Date") {
+          var dateFormatted = tt_data_source.get(0, tt_data_source_length)[i].get(tableKey);
+          dateFormatted = ("0" + dateFormatted.getDate()).slice(-2) + "/" + ("0" + dateFormatted.getMonth()).slice(-2) + "/" + dateFormatted.getFullYear();
+          tableValue = dateFormatted
+        }
+        else if(tableKey == "Modified Date") {
+          var dateFormatted = tt_data_source.get(0, tt_data_source_length)[i].get(tableKey);
+          dateFormatted = ("0" + dateFormatted.getDate()).slice(-2) + "/" + ("0" + dateFormatted.getMonth()).slice(-2) + "/" + dateFormatted.getFullYear();
+          tableValue = dateFormatted
+        }
+        else if(tableKey == "date_date") {
+          var dateFormatted = tt_data_source.get(0, tt_data_source_length)[i].get(tableKey);
+          dateFormatted = ("0" + dateFormatted.getDate()).slice(-2) + "/" + ("0" + dateFormatted.getMonth()).slice(-2) + "/" + dateFormatted.getFullYear();
+          tableValue = dateFormatted
+        }
+        else {
+          tableValue = tt_data_source.get(0, tt_data_source_length)[i].get(tableKey)
+        }
+
+        // console.log(tableKey, "=", tableValue, i)
+        table_entry[tableKey] = tableValue
+      }
+      table_data.push(table_entry);
+    }
+    // console.log(table_data);
+    return table_data;
+  };
+
+
+  function showTable(tableData) {
+    console.log("showTable ran");
+    var table = new Tabulator("#table", {
+      responsiveLayout:"collapse",
+      responsiveLayoutCollapseStartOpen:false,
+      layout:"fitData",
+      height: 600,
+      data: tableData,
+      movableColumns: true,
+      pagination:"local",
+      paginationSize:30,
+      paginationSizeSelector:[30, 50, 100, 200],
+      columns: [
+        {formatter:"responsiveCollapse", headerSort:false},
+        {title: "Date", field: "date_date", resizable:true, responsive: 0},
+        {title: "Amount", field: "amount_number", resizable:true, responsive: 0,
+        bottomCalc: "sum", bottomCalcParams:{
+          precision: 2,
+        },
+        formatter:"money", formatterParams:{
+        decimal:".",
+        thousand:",",
+        precision: 2,
+        }},
+        {title: "Supplier", field: "supplier_text", resizable:true, responsive: 0},
+        {title: "Reporting Category", field: "reporting_category_custom_reporting_category", resizable:true},
+        {title: "Description", field: "description_text", bottomCalc: "count", resizable:true},
+        {title: "Currency", field: "currency_text", resizable:true},
+        {title: "Paid by", field: "payment_method_text", resizable:true},
+        {title: "Status", field: "status1_text", resizable:true},
+        {title: "Image", field: "image_image", formatter: "image", formatterParams:{
+          height: "50px",
+          width: "50px",
+        }},
+      ],
+      rowClick:function(e, row){
+        instance.triggerEvent("row_clicked");
+        instance.publishState("receipt_to_send", row.getData()._id);
+ 	},
+    });
+  };
+
+}
